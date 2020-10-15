@@ -41,30 +41,26 @@ client.connect(err => {
   });
 
   app.get('/checkProduct', (req, res) => {
-    orderCollection.find({})
+    orderCollection.find({email: req.query.email})
     .toArray((err, products) => {
       res.send(products)
     })
   });
 
+
+  app.get('/loadAllOrder', (req, res) => {
+    orderCollection.find({})
+    .toArray((err, allOrder) => {
+      res.send(allOrder)
+    })
+  });
+
   app.post('/postReview', (req, res) => {
-    const file = req.files.file;
-    const name = req.body.name;
-    const designation = req.body.designation;
-    const description = req.body.description;
-    const newImg = file.data;
-    const encImg = newImg.toString('base64');
-
-    var image = {
-      contentType: file.mimetype,
-      size: file.size,
-      img: Buffer.from(encImg, 'base64')
-    };
-
-    reviewCollection.insertOne({ name, designation, description, image })
-      .then(result => {
+    const order = req.body;
+    reviewCollection.insertOne(order)
+    .then(result => {
         res.send(result.insertedCount > 0)
-      });
+    })
   });
 
   app.get('/showreview', (req, res) => {
@@ -106,6 +102,14 @@ client.connect(err => {
     .toArray((err, services) => {
       res.send(services)
     })
+  });
+
+  app.post('/isAdmin', (req, res) => {
+    const email = req.body.email;
+    adminCollection.find({ email: email })
+      .toArray((err, admins) => {
+        res.send(admins.length > 0)
+      })
   });
   
 
